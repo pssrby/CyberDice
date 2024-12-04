@@ -111,6 +111,7 @@ int max7219_GPIO_init(){
 int main(void){
     stdio_init_all();
     max7219_GPIO_init();
+    Init_MAX7219();
     uint8_t i,j;
     sleep_ms(50);
     Init_MAX7219();  
