@@ -97,8 +97,11 @@ endif()
 # else()
 #     message("Skipping I2C examples as hardware_i2c is unavailable on this platform")
 # endif()
+
+set(src_files CyberDice.c max7219.c mpu6050_i2c.c)
 add_executable(CyberDice
-        )
+    ${src_files}
+    )
 
 # pull in common dependencies and additional i2c hardware support
 target_link_libraries(CyberDice pico_stdlib hardware_i2c)
