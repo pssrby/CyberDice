@@ -5,5 +5,5 @@
 #define Max7219_pinCS  7
 #define Max7219_pinDIN 8
 void MAX7219_disp_num(int num);
-
+void Init_MAX7219(void);
 #endif

@@ -7,6 +7,10 @@
 //  Max7219_pinDIN = P2^0;
 #include "max7219.h"
 #include "pico/stdlib.h"
+#define PAUSE_us 1
+static void Write_Max7219_byte(uint8_t DATA);
+static void Write_Max7219(char address, char dat);
+static int max7219_GPIO_init();
 char code_disp1[38][8]={
 {0x3C,0x42,0x42,0x42,0x42,0x42,0x42,0x3C},//0
 {0x10,0x18,0x14,0x10,0x10,0x10,0x10,0x10},//1
@@ -53,18 +57,20 @@ char code_disp1[38][8]={
 //入口参数：DATA 
 //出口参数：无
 //说明：
-static void Write_Max7219_byte(char DATA)         
+static void Write_Max7219_byte(uint8_t DATA)
 {
-    char i;    
-    gpio_put(Max7219_pinCS, 0);
-    for(i=8;i>=1;i--){		  
+    // gpio_put(Max7219_pinCS, 0);
+    for(int i = 0; i < 8; i++){		  
         // Max7219_pinCLK=0;
-        gpio_put(Max7219_pinCLK, 0);
         // Max7219_pinDIN=DATA&0x80;
-        gpio_put(Max7219_pinDIN, DATA&0x80);
-        DATA=DATA<<1;
+        gpio_put(Max7219_pinDIN, DATA & 0x80);
+        sleep_us(PAUSE_us);
+        DATA = DATA<<1;
         // Max7219_pinCLK=1;
         gpio_put(Max7219_pinCLK, 1);
+        sleep_us(PAUSE_us);
+        gpio_put(Max7219_pinCLK, 0);
+        sleep_us(PAUSE_us);
     }                                 
 }
 //-------------------------------------------
@@ -75,19 +81,36 @@ static void Write_Max7219_byte(char DATA)
 static void Write_Max7219(char address, char dat)
 { 
     gpio_put(Max7219_pinCS, 0);
+    sleep_us(PAUSE_us);
     Write_Max7219_byte(address);           //写入地址，即数码管编号
     Write_Max7219_byte(dat);               //写入数据，即数码管显示数字 
     // Max7219_pinCS=1;                        
     gpio_put(Max7219_pinCS, 1);
+    sleep_us(PAUSE_us);
 }
 
-static void Init_MAX7219(void)
+void Init_MAX7219(void)
 {
- Write_Max7219(0x09, 0x00);       //译码方式：BCD码
- Write_Max7219(0x0a, 0x03);       //亮度 
- Write_Max7219(0x0b, 0x07);       //扫描界限；8个数码管显示
- Write_Max7219(0x0c, 0x01);       //掉电模式：0，普通模式：1
- Write_Max7219(0x0f, 0x00);       //显示测试：1；测试结束，正常显示：0
+    max7219_GPIO_init();
+    gpio_put(Max7219_pinDIN, 0);
+    gpio_put(Max7219_pinCS, 1);
+    gpio_put(Max7219_pinCLK, 0);
+    sleep_us(PAUSE_us);
+    Write_Max7219(0x09, 0x00);       //译码方式：BCD码
+    Write_Max7219(0x0a, 0x03);       //亮度 
+    Write_Max7219(0x0b, 0x07);       //扫描界限；8个数码管显示
+    Write_Max7219(0x0c, 0x01);       //掉电模式：0，普通模式：1
+    Write_Max7219(0x0f, 0x00);       //显示测试：1；测试结束，正常显示：0
+}
+
+static int max7219_GPIO_init(){
+    gpio_init(Max7219_pinCLK);
+    gpio_set_dir(Max7219_pinCLK, GPIO_OUT);
+    gpio_init(Max7219_pinCS);
+    gpio_set_dir(Max7219_pinCS, GPIO_OUT);
+    gpio_init(Max7219_pinDIN);
+    gpio_set_dir(Max7219_pinDIN, GPIO_OUT);
+    return 0;
 }
 
 void MAX7219_disp_num(int num){
@@ -98,28 +121,19 @@ void MAX7219_disp_num(int num){
 
 #include "pico/stdlib.h"
 
-int max7219_GPIO_init(){
-    gpio_init(Max7219_pinCLK);
-    gpio_set_dir(Max7219_pinCLK, GPIO_OUT);
-    gpio_init(Max7219_pinCS);
-    gpio_set_dir(Max7219_pinCS, GPIO_OUT);
-    gpio_init(Max7219_pinDIN);
-    gpio_set_dir(Max7219_pinDIN, GPIO_OUT);
-    return 0;
-}
 
 int main(void){
     stdio_init_all();
-    max7219_GPIO_init();
-    Init_MAX7219();
     uint8_t i,j;
-    sleep_ms(50);
     Init_MAX7219();  
     while(1) {
-        for(j=0;j<38;j++){
-            for(i=1;i<9;i++) Write_Max7219(i,code_disp1[j][i-1]);
-            sleep_ms(1000);
-        }  
+        MAX7219_disp_num(0);
+        sleep_ms(1000);
+        // Write_Max7219_byte(0x55);
+        // for(j=0;j<38;j++){
+        //     for(i=1;i<9;i++) Write_Max7219(i,code_disp1[j][i-1]);
+        //     sleep_ms(1000);
+        // }  
     } 
 }
 #endif

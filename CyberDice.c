@@ -2,6 +2,8 @@
 #include "mpu6050_i2c.h"
 #include "max7219.h"
 #include "pico/multicore.h"
+#include "pico/stdlib.h"
+#include <stdio.h>
 typedef enum mode{
     reset, 
     sleep, 
@@ -34,6 +36,7 @@ int dice_mode_handler(dice_state_t current_state, dice_state_t previous_state){
     // either the previous displayed or increased
     int num = 0;
     MAX7219_disp_num(num);
+    sleep_ms(1000);
     return num;
 }
 
@@ -42,12 +45,15 @@ void core1_main(){
 }
 
 int main(void){
+    stdio_init_all();
+    Init_MAX7219();
     static struct dice_state dice_state_0, dice_state_1;
     dice_state_t current_state = &dice_state_0;
     dice_state_t previous_state = &dice_state_1;
     dice_state_t temp_state;
     static mode_t working_mode;
     working_mode = dice;
+    MPU6050_INIT();
     mpu6050_read_state(current_state);
     while(1){
         temp_state = previous_state;
