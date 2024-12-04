@@ -110,7 +110,7 @@ add_executable(MAX7219_TEST ${src_max_test_list})
 target_compile_definitions(MAX7219_TEST PUBLIC MAX7219_TEST)
 
 # pull in common dependencies and additional i2c hardware support
-target_link_libraries(CyberDice pico_stdlib hardware_i2c)
+target_link_libraries(CyberDice pico_stdlib hardware_i2c pico_multicore)
 target_link_libraries(MPU6050_TEST pico_stdlib hardware_i2c)
 target_link_libraries(MAX7219_TEST pico_stdlib)
 
