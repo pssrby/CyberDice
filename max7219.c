@@ -105,18 +105,19 @@ int max7219_GPIO_init(){
     gpio_set_dir(Max7219_pinCS, GPIO_OUT);
     gpio_init(Max7219_pinDIN);
     gpio_set_dir(Max7219_pinDIN, GPIO_OUT);
+    return 0;
 }
 
 int main(void){
     stdio_init_all();
     max7219_GPIO_init();
-    char i,j;
-    Delay_xms(50);
+    uint8_t i,j;
+    sleep_ms(50);
     Init_MAX7219();  
     while(1) {
         for(j=0;j<38;j++){
             for(i=1;i<9;i++) Write_Max7219(i,code_disp1[j][i-1]);
-            Delay_xms(1000);
+            sleep_ms(1000);
         }  
     } 
 }

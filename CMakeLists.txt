@@ -99,15 +99,22 @@ endif()
 # endif()
 
 set(src_list CyberDice.c max7219.c mpu6050_i2c.c)
-set(src_mpu_test_list mpu6050_i2c.c)
 add_executable(CyberDice ${src_list})
+
+set(src_mpu_test_list mpu6050_i2c.c)
 add_executable(MPU6050_TEST ${src_mpu_test_list})
 target_compile_definitions(MPU6050_TEST PUBLIC MPU6050_TEST)
+
+set(src_max_test_list max7219.c)
+add_executable(MAX7219_TEST ${src_max_test_list})
+target_compile_definitions(MAX7219_TEST PUBLIC MAX7219_TEST)
 
 # pull in common dependencies and additional i2c hardware support
 target_link_libraries(CyberDice pico_stdlib hardware_i2c)
 target_link_libraries(MPU6050_TEST pico_stdlib hardware_i2c)
+target_link_libraries(MAX7219_TEST pico_stdlib)
 
 # create map/bin/hex file etc.
 pico_add_extra_outputs(CyberDice)
 pico_add_extra_outputs(MPU6050_TEST)
+pico_add_extra_outputs(MAX7219_TEST)
