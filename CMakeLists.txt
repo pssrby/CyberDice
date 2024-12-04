@@ -100,11 +100,13 @@ endif()
 
 set(src_files CyberDice.c max7219.c mpu6050_i2c.c)
 add_executable(CyberDice
-    ${src_files}
+    CyberDice.c
+    max7219.c
+    mpu6050_i2c.c
     )
 
 # pull in common dependencies and additional i2c hardware support
 target_link_libraries(CyberDice pico_stdlib hardware_i2c)
 
 # create map/bin/hex file etc.
-pico_add_extra_outputs(Cyberdice)
+pico_add_extra_outputs(CyberDice)

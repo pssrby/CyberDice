@@ -1,3 +1,4 @@
+#include<stdint.h>
 #include "mpu6050_i2c.h"
 #include "max7219.h"
 enum fsm_state{
@@ -30,7 +31,7 @@ void mpu6050_read_state(dice_state_t current_state){
 }
 
 faceup_t which_side(dice_state_t state){
-
+    return XD;
 }
 
 int dice_mode_handler(dice_state_t current_state, dice_state_t previous_state){
@@ -38,6 +39,7 @@ int dice_mode_handler(dice_state_t current_state, dice_state_t previous_state){
     // either the previous displayed or increased
     int num = 0;
     MAX7219_disp_num(num);
+    return num;
 }
 
 int main(void){
