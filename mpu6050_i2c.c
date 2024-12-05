@@ -121,11 +121,11 @@ int main() {
 
         // These are the raw numbers from the chip, so will need tweaking to be really useful.
         // See the datasheet for more information
-        printf("Acc. X = %d, Y = %d, Z = %d\n", acceleration[0], acceleration[1], acceleration[2]);
-        printf("Gyro. X = %d, Y = %d, Z = %d\n", gyro[0], gyro[1], gyro[2]);
+        printf("Acc. X = %6d, Y = %6d, Z = %6d, ", acceleration[0], acceleration[1], acceleration[2]);
+        printf("Gyro. X = %6d, Y = %6d, Z = %6d\n", gyro[0], gyro[1], gyro[2]);
         // Temperature is simple so use the datasheet calculation to get deg C.
         // Note this is chip temperature.
-        printf("Temp. = %f\n", (temp / 340.0) + 36.53);
+        // printf("Temp. = %f\n", (temp / 340.0) + 36.53);
 
         sleep_ms(100);
     }

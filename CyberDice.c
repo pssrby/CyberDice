@@ -9,7 +9,8 @@ typedef enum mode{
     sleep, 
     clock, 
     count_down, 
-    dice
+    dice_roll, 
+    dice_stop
 }mode_t;
 
 typedef enum faceup{
@@ -22,6 +23,11 @@ struct dice_state{
     int16_t gyro[3];
     int16_t tmp;
 };
+void mpu6050_read_state(dice_state_t current_state);
+faceup_t which_side(dice_state_t state);
+
+uint8_t dice_roll_handler(uint8_t dice_num, int16_t x_degree);
+void dice_stop_handler(uint8_t dice_num);
 
 void mpu6050_read_state(dice_state_t current_state){
     mpu6050_read_raw(current_state->accl, current_state->gyro, &(current_state->tmp));
@@ -31,13 +37,17 @@ faceup_t which_side(dice_state_t state){
     return XD;
 }
 
-int dice_mode_handler(dice_state_t current_state, dice_state_t previous_state){
+uint8_t dice_roll_handler(uint8_t dice_num, int16_t x_degree){
     // display a number, 
     // either the previous displayed or increased
-    int num = 0;
-    MAX7219_disp_num(num);
-    sleep_ms(1000);
-    return num;
+    x_degree = x_degree > 0 ? x_degree : -x_degree;
+    dice_num = dice_num + x_degree / 100;
+    dice_num = dice_num % 10;
+    MAX7219_disp_num(dice_num);
+    return dice_num;
+}
+void dice_stop_handler(uint8_t dice_num){
+    MAX7219_disp_num(dice_num);
 }
 
 void core1_main(){
@@ -51,17 +61,22 @@ int main(void){
     dice_state_t current_state = &dice_state_0;
     dice_state_t previous_state = &dice_state_1;
     dice_state_t temp_state;
-    static mode_t working_mode;
-    working_mode = dice;
+    static mode_t currunt_mode, next_mode;
+    next_mode = reset;
     MPU6050_INIT();
     mpu6050_read_state(current_state);
+    int16_t x_degree;
+    uint8_t dice_num = 0;
     while(1){
+        currunt_mode = next_mode;
         temp_state = previous_state;
         previous_state = current_state;
         current_state = temp_state;
         mpu6050_read_state(current_state);
-        switch(working_mode){
+        x_degree = current_state->gyro[0] - previous_state->gyro[0];
+        switch(currunt_mode){
             case reset:
+                next_mode = dice_stop;
             break;
             case sleep:
             break;
@@ -69,8 +84,15 @@ int main(void){
             break;
             case count_down:
             break;
-            case dice:
-                dice_mode_handler(current_state, previous_state);
+            case dice_stop:
+                dice_stop_handler(dice_num);
+                if(x_degree < 1000 && x_degree > -1000) next_mode = dice_stop;
+                else next_mode = dice_roll;
+            break;
+            case dice_roll:
+                dice_num = dice_roll_handler(dice_num, x_degree);
+                if(x_degree < 1000 && x_degree > -1000) next_mode = dice_stop;
+                else next_mode = dice_roll;
             break;
         }
     }
