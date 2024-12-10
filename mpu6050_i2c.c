@@ -25,8 +25,8 @@
 
    Connections on Raspberry Pi Pico board, other boards may vary.
 
-   GPIO PICO_DEFAULT_I2C_SDA_PIN (On Pico this is GP4 (pin 6)) -> SDA on MPU6050 board
-   GPIO PICO_DEFAULT_I2C_SCL_PIN (On Pico this is GP5 (pin 7)) -> SCL on MPU6050 board
+   GPIO DICE_I2C_SDA_PIN (On Pico this is GP4 (pin 6)) -> SDA on MPU6050 board
+   GPIO DICE_I2C_SCL_PIN (On Pico this is GP5 (pin 7)) -> SCL on MPU6050 board
    3.3v (pin 36) -> VCC on MPU6050 board
    GND (pin 38)  -> GND on MPU6050 board
 */
@@ -39,12 +39,12 @@ static void MPU6050_GPIO_INIT(void);
 static void mpu6050_reset();
 static void MPU6050_GPIO_INIT(void){
     i2c_init(i2c_default, 400 * 1000);
-    gpio_set_function(PICO_DEFAULT_I2C_SDA_PIN, GPIO_FUNC_I2C);
-    gpio_set_function(PICO_DEFAULT_I2C_SCL_PIN, GPIO_FUNC_I2C);
-    gpio_pull_up(PICO_DEFAULT_I2C_SDA_PIN);
-    gpio_pull_up(PICO_DEFAULT_I2C_SCL_PIN);
+    gpio_set_function(DICE_I2C_SDA_PIN, GPIO_FUNC_I2C);
+    gpio_set_function(DICE_I2C_SCL_PIN, GPIO_FUNC_I2C);
+    gpio_pull_up(DICE_I2C_SDA_PIN);
+    gpio_pull_up(DICE_I2C_SCL_PIN);
     // Make the I2C pins available to picotool
-    bi_decl(bi_2pins_with_func(PICO_DEFAULT_I2C_SDA_PIN, PICO_DEFAULT_I2C_SCL_PIN, GPIO_FUNC_I2C));
+    bi_decl(bi_2pins_with_func(DICE_I2C_SDA_PIN, DICE_I2C_SCL_PIN, GPIO_FUNC_I2C));
 }
 static void mpu6050_reset() {
     // Two byte reset. First byte register, second byte data
@@ -103,7 +103,7 @@ void mpu6050_read_raw(int16_t accel[3], int16_t gyro[3], int16_t *temp) {
 #ifdef MPU6050_TEST
 int main() {
     stdio_init_all();
-#if !defined(i2c_default) || !defined(PICO_DEFAULT_I2C_SDA_PIN) || !defined(PICO_DEFAULT_I2C_SCL_PIN)
+#if !defined(i2c_default) || !defined(DICE_I2C_SDA_PIN) || !defined(DICE_I2C_SCL_PIN)
     #warning i2c/mpu6050_i2c example requires a board with I2C pins
     puts("Default I2C pins were not defined");
     return 0;
