@@ -1,6 +1,7 @@
 #include<stdint.h>
 #include "mpu6050_i2c.h"
-#include "max7219.h"
+#include "oled.h"
+#include "bmp.h"
 #include "pico/multicore.h"
 #include "pico/stdlib.h"
 #include <stdio.h>
@@ -43,11 +44,13 @@ uint8_t dice_roll_handler(uint8_t dice_num, int16_t x_degree){
     x_degree = x_degree > 0 ? x_degree : -x_degree;
     dice_num = dice_num + x_degree / 100;
     dice_num = dice_num % 10;
-    MAX7219_disp_num(dice_num);
+    // MAX7219_disp_num(dice_num);
+    OLED_display_num(dice_num);
     return dice_num;
 }
 void dice_stop_handler(uint8_t dice_num){
-    MAX7219_disp_num(dice_num);
+    // MAX7219_disp_num(dice_num);
+    OLED_display_num(dice_num);
 }
 
 void core1_main(){
@@ -56,7 +59,11 @@ void core1_main(){
 
 int main(void){
     stdio_init_all();
-    Init_MAX7219();
+    OLED_GPIO_INIT();
+ 	OLED_Init();
+	OLED_ColorTurn(0);//0正常显示，1 反色显示
+    OLED_DisplayTurn(0);//0正常显示 1 屏幕翻转显示LED
+
     static struct dice_state dice_state_0, dice_state_1;
     dice_state_t current_state = &dice_state_0;
     dice_state_t previous_state = &dice_state_1;
